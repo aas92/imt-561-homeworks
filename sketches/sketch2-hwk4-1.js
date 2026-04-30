@@ -1,7 +1,7 @@
 // Instance-mode sketch for tab 2
 registerSketch('sk2', function (p) {
   //const CANVAS_SIZE = 800;
-  const sketch = (p) => {
+
     let stopwatches = [];
    
     // Layout constants
@@ -48,7 +48,8 @@ registerSketch('sk2', function (p) {
   p.strokeWeight(1);
   p.rect(0, 0, p.width - 1, p.height - 1);
   p.windowResized = function () { p.resizeCanvas(CANVAS_SIZE, CANVAS_SIZE); };
-   */}
+   */
+
    p.draw = () => {
     p.background(245);
  
@@ -146,4 +147,4 @@ registerSketch('sk2', function (p) {
   }
 });
  
-new p5(sketch);  
+
