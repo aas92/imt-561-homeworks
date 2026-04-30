@@ -20,135 +20,136 @@ registerSketch('sk3', function (p) {
     p.strokeWeight(1);
     p .rect(0, 0, p.width - 1, p.height - 1);
   };*/
-let isRunning = false;
-let startMillis = 0;   // millis() reference for current run segment
-let elapsedCs = 0;     // total elapsed centiseconds
-let totalCs = 0;       // total duration in centiseconds (0 = not started)
-//let CANVAS_SIZE = 500;
-let maxSize;           // max ellipse diameter (cannot exceed canvas)
+  // ----- Encapsulated state -----
+  let isRunning = false;
+  let startMillis = 0;
+  let elapsedCs = 0;
+  let totalCs = 0;
+  const canvasSize = 500;
+  let maxSize;
  
-let durationInput, startBtn, stopBtn, resetBtn, label;
+  // DOM references (created via p5)
+  let durationInput, startBtn, stopBtn, resetBtn, label;
  
-p.setup = function() {
-  createCanvas(CANVAS_SIZE, CANVAS_SIZE);
-  maxSize = CANVAS_SIZE;
-  ellipseMode(CENTER);
+  p.setup = () => {
+    p.createCanvas(canvasSize, canvasSize);
+    maxSize = canvasSize;
+    p.ellipseMode(p.CENTER);
  
-  // --- DOM controls ---
-  label = createSpan('Duration (sec, max 1800): ');
-  label.style('font-family', 'monospace');
-  label.style('color', '#333');
+    // Build controls — these are p5 wrappers around DOM elements
+    label = p.createSpan('Duration (sec, max 1800): ');
+    label.style('font-family', 'monospace');
+    label.style('color', '#333');
  
-  durationInput = createInput('60', 'number');
-  durationInput.attribute('min', '1');
-  durationInput.attribute('max', '1800');
-  durationInput.attribute('step', '1');
-  durationInput.size(70);
+    durationInput = p.createInput('60', 'number');
+    durationInput.attribute('min', '1');
+    durationInput.attribute('max', '1800');
+    durationInput.attribute('step', '1');
+    durationInput.size(70);
  
-  startBtn = createButton('Start');
-  startBtn.mousePressed(startTimer);
+    startBtn = p.createButton('Start');
+    startBtn.mousePressed(startTimer);
  
-  stopBtn = createButton('Stop');
-  stopBtn.mousePressed(stopTimer);
+    stopBtn = p.createButton('Stop');
+    stopBtn.mousePressed(stopTimer);
  
-  resetBtn = createButton('Reset');
-  resetBtn.mousePressed(resetTimer);
-}
+    resetBtn = p.createButton('Reset');
+    resetBtn.mousePressed(resetTimer);
+  };
  
-p.draw = function() {
-  background(14, 14, 16);
+  p.draw = () => {
+    p.background(14, 14, 16);
  
-  // Update elapsed time if running
-  if (isRunning) {
-    elapsedCs = (millis() - startMillis) / 10; // ms -> centiseconds
-    if (elapsedCs >= totalCs) {
-      elapsedCs = totalCs;
-      isRunning = false;
+    // Update elapsed time if running
+    if (isRunning) {
+      elapsedCs = (p.millis() - startMillis) / 10; // ms -> centiseconds
+      if (elapsedCs >= totalCs) {
+        elapsedCs = totalCs;
+        isRunning = false;
+      }
     }
+ 
+    const cx = p.width / 2;
+    const cy = p.height / 2;
+ 
+    // Reference outline showing the final size
+    p.noFill();
+    p.stroke(50);
+    p.strokeWeight(1);
+    p.ellipse(cx, cy, maxSize - 2, maxSize - 2);
+ 
+    // Constant growth: maxSize / totalCs per centisecond
+    let size = 0;
+    if (totalCs > 0) {
+      const growthPerCs = maxSize / totalCs;
+      size = elapsedCs * growthPerCs;
+      size = p.constrain(size, 0, maxSize);
+    }
+ 
+    // Growing ellipse
+    p.noStroke();
+    p.fill(245, 215, 110, 230);
+    p.ellipse(cx, cy, size, size);
+ 
+    // Inner highlight ring
+    if (size > 4) {
+      p.noFill();
+      p.stroke(255, 255, 255, 40);
+      p.strokeWeight(1);
+      p.ellipse(cx, cy, size - 2, size - 2);
+    }
+ 
+    // Time readout — top
+    p.noStroke();
+    p.fill(244);
+    p.textAlign(p.CENTER, p.TOP);
+    p.textSize(13);
+    p.textFont('monospace');
+    const elapsedSec = (elapsedCs / 100).toFixed(2);
+    const totalSec = (totalCs / 100).toFixed(2);
+    p.text(elapsedSec + 's / ' + totalSec + 's', cx, 14);
+ 
+    // Status — bottom
+    p.textAlign(p.CENTER, p.BOTTOM);
+    p.fill(150);
+    p.textSize(10);
+    let status = 'IDLE';
+    if (totalCs > 0 && elapsedCs >= totalCs) status = 'COMPLETE';
+    else if (isRunning) status = 'RUNNING';
+    else if (elapsedCs > 0) status = 'PAUSED';
+    p.text(status, cx, p.height - 14);
+  };
+ 
+  // ----- Control handlers (closures over p and state) -----
+  function startTimer() {
+    if (isRunning) return;
+ 
+    let duration = parseFloat(durationInput.value());
+    if (isNaN(duration) || duration <= 0) duration = 60;
+    duration = p.constrain(duration, 0.1, 1800); // 30-minute cap
+ 
+    if (totalCs === 0 || elapsedCs >= totalCs) {
+      // Fresh run
+      totalCs = duration * 100;
+      elapsedCs = 0;
+      startMillis = p.millis();
+    } else {
+      // Resume from pause
+      startMillis = p.millis() - elapsedCs * 10;
+    }
+    isRunning = true;
   }
  
-  const cx = width / 2;
-  const cy = height / 2;
- 
-  // Reference outline showing the final size
-  noFill();
-  stroke(50);
-  strokeWeight(1);
-  ellipse(cx, cy, maxSize - 2, maxSize - 2);
- 
-  // Constant growth: maxSize / totalCs per centisecond
-  let size = 0;
-  if (totalCs > 0) {
-    const growthPerCs = maxSize / totalCs;
-    size = elapsedCs * growthPerCs;
-    size = constrain(size, 0, maxSize);
+  function stopTimer() {
+    isRunning = false;
   }
  
-  // Growing ellipse
-  noStroke();
-  fill(245, 215, 110, 230);
-  ellipse(cx, cy, size, size);
- 
-  // Inner highlight ring
-  if (size > 4) {
-    noFill();
-    stroke(255, 255, 255, 40);
-    strokeWeight(1);
-    ellipse(cx, cy, size - 2, size - 2);
-  }
- 
-  // Time readout — top
-  noStroke();
-  fill(244);
-  textAlign(CENTER, TOP);
-  textSize(13);
-  textFont('monospace');
-  const elapsedSec = (elapsedCs / 100).toFixed(2);
-  const totalSec = (totalCs / 100).toFixed(2);
-  text(elapsedSec + 's / ' + totalSec + 's', cx, 14);
- 
-  // Status — bottom
-  textAlign(CENTER, BOTTOM);
-  fill(150);
-  textSize(10);
-  let status = 'IDLE';
-  if (totalCs > 0 && elapsedCs >= totalCs) status = 'COMPLETE';
-  else if (isRunning) status = 'RUNNING';
-  else if (elapsedCs > 0) status = 'PAUSED';
-  text(status, cx, height - 14);
-}
- 
-p.startTimer = function() {
-  if (isRunning) return;
- 
-  let duration = parseFloat(durationInput.value());
-  if (isNaN(duration) || duration <= 0) duration = 60;
-  duration = constrain(duration, 0.1, 1800); // 30-minute cap
- 
-  if (totalCs === 0 || elapsedCs >= totalCs) {
-    // Fresh run
-    totalCs = duration * 100;
+  function resetTimer() {
+    isRunning = false;
     elapsedCs = 0;
-    startMillis = millis();
-  } else {
-    // Resume from pause
-    startMillis = millis() - elapsedCs * 10;
+    totalCs = 0;
+    startMillis = 0;
   }
-  isRunning = true;
-}
- 
-p.stopTimer = function() {
-  isRunning = false;
-}
- 
-p.resetTimer = function() {
-  isRunning = false;
-  elapsedCs = 0;
-  totalCs = 0;
-  startMillis = 0;
-}
-
-
-  p.windowResized = function () { p.resizeCanvas(CANVAS_SIZE, CANVAS_SIZE); };
- 
 });
+ 
+// Instantiate the sketch
