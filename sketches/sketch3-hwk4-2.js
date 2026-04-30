@@ -3,11 +3,11 @@ registerSketch('sk3', function (p) {
   const CANVAS_SIZE = 800;
 
   //p.setup = function () {
-    p.createCanvas(CANVAS_SIZE, CANVAS_SIZE);
+  // p.createCanvas(CANVAS_SIZE, CANVAS_SIZE);
   //};
 
   //p.draw = function () {
-    p.background(255);
+  /*   p.background(255);
     p.noStroke();
     p.fill(180, 60, 60);
     p.textSize(32);
@@ -18,8 +18,8 @@ registerSketch('sk3', function (p) {
     p.noFill();
     p.stroke(0);
     p.strokeWeight(1);
-    p.rect(0, 0, p.width - 1, p.height - 1);
-  //};
+    p .rect(0, 0, p.width - 1, p.height - 1);
+  };*/
 let isRunning = false;
 let startMillis = 0;   // millis() reference for current run segment
 let elapsedCs = 0;     // total elapsed centiseconds
