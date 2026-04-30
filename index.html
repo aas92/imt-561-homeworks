@@ -45,12 +45,12 @@
         <div class="welcome-profile">
           <div class="welcome-photo" role="img" aria-label="Profile photo placeholder">
             <!-- Replace with your own photo -->
-            <!-- <img src="images/your-photo.jpg" alt="Photo of [Your name]" /> -->
-            <span>Add a photo</span>
+           <img src="images/aaron/Self_Photo.png" alt="Photo of Aaron" />
+            <!--<span>Add a photo</span> -->
           </div>
 
           <div class="welcome-copy">
-            <p><strong>Aaron Stern</strong> ([optional pronouns])</p>
+            <p><strong>Aaron Stern</strong></p>
             <p>I am a master’s student in MSIM, focused on UX & Data Science.</p>
             <p>This quarter I want to get better at coding data visualizations.</p>
             <p>One dataset or topic I am excited to visualize is housing data, because I think there are some interesting 
@@ -68,7 +68,8 @@
           <h3 id="sk2-notes-title">Documenting iterative process</h3>
           <p class="small-note">Replace placeholders with your own notes and images.</p>
           <p>
-            Context of use: Explain where your clocks/timers would be used, by whom, and what problem they help solve. [add 2-3 sentences]
+            Context of use: This timer would be best displayed on wider screen. It would be used for people who have multi-step time dependent tasks that they want to 
+            keep track of.
           </p>
 
           <article class="clock-template">
@@ -76,21 +77,24 @@
             <p class="small-note">Sketch iteration documentation (paper/hand-drawn photos)</p>
             <div class="iteration-grid">
               <figure class="iteration-item">
-                <!-- <img src="images/clock1-sketch1.jpg" alt="Clock 1 sketch iteration 1" /> -->
-                <div class="image-placeholder">Clock 1 sketch photo 1</div>
+                <img src="images/aaron/Time_Manage1.png" alt="Clock 1 sketch iteration 1" />
+                <div class="image-placeholder">Time Manage sketch photo 1</div>
               </figure>
               <figure class="iteration-item">
-                <!-- <img src="images/clock1-sketch2.jpg" alt="Clock 1 sketch iteration 2" /> -->
-                <div class="image-placeholder">Clock 1 sketch photo 2</div>
+                <img src="images/aaron/TimeManage2.png" alt="Clock 1 sketch iteration 2" />
+                <div class="image-placeholder">Time Manage sketch photo 2</div>
               </figure>
             </div>
             <p>
-              Design process: In 1–2 paragraphs (or bullet points), explain how this clock evolved from sketches to final
-              form. Name the information visualization principles you applied (readability, hierarchy, color, layout,
-              interaction, accessibility). [mention 2-3 design decisions and why]
-            </p>
+              Design process: I sketched a universal start and stop button, which doesn't really make sense. In the code, each task timer is activated by clicking on its 
+              respective rectangle. This is like chaining multiple stop watches together with independent run times. While each timer is running, their is a "status light" 
+              that shows you which task you're on. The total elapsed time tracks the cumulative time you've spent on each task, which could be helpful for predicting how long
+              these tasks could take in the future. </p>
             <p>
-              Self-reflection / future work: What would you improve next, and why? [add two improvements you'd make and explain why]
+              Self-reflection / future work: I'd like to add interactive features that help users stay on task. One such feature would be an user input that labels
+              the sequence of tasks that they're working on. In cases where they get distracted, they can refer back to the stopwatches and be reminded the task they
+              should be doing, but also the tasks that follow. The ability to create a custom number of tasks would
+              also be a desirable feature.
             </p>
           </article>
         </div>
@@ -104,8 +108,11 @@
         <div class="welcome-template hwk-template" aria-labelledby="sk3-notes-title">
           <h3 id="sk3-notes-title">Documenting iterative process</h3>
           <p class="small-note">Replace placeholders with your own notes and images.</p>
+          <a href = https://editor.p5js.org/aas92/sketches/xKSU7MU-8 target="_blank">Link to Web Editor</a> 
+      
           <p>
-            Context of use: Explain where your clocks/timers would be used, by whom, and what problem they help solve. [add 2-3 sentences]
+            Context of use: These timers will can be used on a small screen device for people who want to visualize time in a different way. The intended use is for people
+            with time management challenges to visualize the passage of time in a different way. 
           </p>
 
           <article class="clock-template">
@@ -113,20 +120,25 @@
             <p class="small-note">Sketch iteration documentation (paper/hand-drawn photos)</p>
             <div class="iteration-grid">
               <figure class="iteration-item">
-                <!-- <img src="images/clock2-sketch1.jpg" alt="Clock 2 sketch iteration 1" /> -->
-                <div class="image-placeholder">Clock 2 sketch photo 1</div>
+                <img src="images/aaron/track_time1.png" alt="Clock 2 sketch iteration 1" />
+                <div class="image-placeholder">Track Time sketch photo 1</div>
               </figure>
               <figure class="iteration-item">
-                <!-- <img src="images/clock2-sketch2.jpg" alt="Clock 2 sketch iteration 2" /> -->
-                <div class="image-placeholder">Clock 2 sketch photo 2</div>
+                <img src="images/aaron/track_time2.png" alt="Clock 2 sketch iteration 2" />
+                <div class="image-placeholder">Track Time sketch photo 2</div>
               </figure>
             </div>
             <p>
-              Design process: In 1–2 paragraphs (or bullet points), explain your iterations and final decisions. Make
-              explicit which visualization considerations shaped the result. [mention 2-3 design decisions and why]
+              Design process: I was thinking about representing the passing of time like sand in an hourglasses as I iterated the hand drawn sketch. This idea is nice but
+              a little impracical for my coding skill level and time constraints. I looked outside my window, saw a tree and decided that referencing growing tree rings would be
+              an elegant alternative with different connotations.  
+            </p>
+            <p>I pivoted away from the code prototype I was working on toward this circular design. I wanted to minimize displaying "counting time" to draw more attention to 
+              a "shape" of time. The intention here is to visualize time in space and not with digits, which can feel quantitatively oppressive.  
             </p>
             <p>
-              Self-reflection / future work: What would you improve next, and why? [add two improvements you'd make and explain why]
+              Self-reflection / future work: I would adjust the control panel to default to minutes, not seconds. I would like to add "rings" for each minute that passed
+              so that it communicates the Tree Ring idea.
             </p>
           </article>
         </div>
