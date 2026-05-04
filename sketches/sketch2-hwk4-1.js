@@ -20,9 +20,11 @@ registerSketch('sk2', function (p) {
     p.createCanvas(4 * RECT_W + 3 * GAP + 2 * MARGIN_X, 360);
  
     // Build the 4 stopwatches
+    const labels = ["Drums","Synths","Arrange","Mix"]
     for (let i = 0; i < 4; i++) {
       stopwatches.push({
         id: i + 1,
+        label: labels[i],
         running: false,
         startTime: 0,        // millis() reference when started
         elapsedTime: 0,      // accumulated ms
@@ -76,8 +78,8 @@ registerSketch('sk2', function (p) {
       p.noStroke();
       p.fill(30);
       p.textAlign(p.CENTER, p.CENTER);
-      p.textSize(40);
-      p.text(sw.id, sw.x + sw.w / 2, sw.y + sw.h / 2);
+      p.textSize(18);
+      p.text(sw.label, sw.x + sw.w / 2, sw.y + sw.h / 2);
     }
  
     // --- Divider line ---
@@ -97,7 +99,7 @@ registerSketch('sk2', function (p) {
       const sw = stopwatches[i];
       const timeStr = formatTime(sw.elapsedTime);
       p.text(
-        `Stopwatch ${sw.id}: ${timeStr}`,
+        `${sw.label}: ${timeStr}`,
         MARGIN_X,
         DIVIDER_Y + 50 + i * 26
       );
