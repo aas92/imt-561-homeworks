@@ -5,19 +5,19 @@ registerSketch('sk2', function (p) {
     let stopwatches = [];
    
     // Layout constants
-    const RECT_W = 110;
-    const RECT_H = 110;
-    const RECT_Y = 40;
+    const RECT_W = 140;
+    const RECT_H = 120;
+    const RECT_Y = 80;
     const GAP = 20;
     const MARGIN_X = 30;
-    const DIVIDER_Y = 180;
+    const DIVIDER_Y = 220;
 
   //p.setup = function () {
   //  p.createCanvas(CANVAS_SIZE, CANVAS_SIZE);
   //};
 
   p.setup = () => {
-    p.createCanvas(4 * RECT_W + 3 * GAP + 2 * MARGIN_X, 360);
+    p.createCanvas(4 * RECT_W + 3 * GAP + 2 * MARGIN_X, 440);
     p.textFont("monospace");
  
     // Build the 4 stopwatches
@@ -57,6 +57,15 @@ registerSketch('sk2', function (p) {
 
    p.draw = () => {
     p.background(245);
+
+    // --- Title ---
+    p.noStroke();
+    p.fill(30);
+    p.textAlign(p.CENTER, p.TOP);
+    p.textSize(22);
+    p.textStyle(p.BOLD);
+    p.text("Music Production Task Tracker", p.width / 2, 25);
+    p.textStyle(p.NORMAL);
  
     // Update any running stopwatches
     for (const sw of stopwatches) {
