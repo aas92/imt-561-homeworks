@@ -18,6 +18,7 @@ registerSketch('sk2', function (p) {
 
   p.setup = () => {
     p.createCanvas(4 * RECT_W + 3 * GAP + 2 * MARGIN_X, 360);
+    p.textFont("monospace");
  
     // Build the 4 stopwatches
     const labels = ["Drums","Synths","Arrange","Mix"];
