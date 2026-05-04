@@ -16,6 +16,16 @@ registerSketch('sk2', function (p) {
   //  p.createCanvas(CANVAS_SIZE, CANVAS_SIZE);
   //};
 
+  const icons = {};
+ 
+  //Something about adding these icons broke the code
+  /*p.preload = () => {
+    icons.drums  = p.loadImage("images/aaron/icons/noun-drum-8269748.png");
+    icons.synths    = p.loadImage("images/aaron/icons/noun-ocarina-8336054.png");
+    icons.arrange = p.loadImage("images/aaron/icons/noun-graphene-6396727.png");
+    icons.mix   = p.loadImage("images/aaron/icons/noun-repair-8301157.png");
+  };*/
+
   p.setup = () => {
     p.createCanvas(4 * RECT_W + 3 * GAP + 2 * MARGIN_X, 440);
     p.textFont("monospace");
@@ -23,11 +33,13 @@ registerSketch('sk2', function (p) {
     // Build the 4 stopwatches
     const labels = ["Drums","Synths","Arrange","Mix"];
     const colors = ["#5480e4", "#85971e", "#ffa374", "#bf9fbe"];
+    //const iconRefs = ["icons.drums","icons.synths","icons.arrange","icons.mix"]
     for (let i = 0; i < 4; i++) {
       stopwatches.push({
         id: i + 1,
         label: labels[i],
         color: colors[i],
+        //icon: iconRefs[i],
         running: false,
         startTime: 0,        // millis() reference when started
         elapsedTime: 0,      // accumulated ms
@@ -56,11 +68,11 @@ registerSketch('sk2', function (p) {
    */
 
    p.draw = () => {
-    p.background(245);
+    p.background(0);
 
     // --- Title ---
     p.noStroke();
-    p.fill(30);
+    p.fill(255);
     p.textAlign(p.CENTER, p.TOP);
     p.textSize(22);
     p.textStyle(p.BOLD);
@@ -92,8 +104,19 @@ registerSketch('sk2', function (p) {
       p.textAlign(p.CENTER, p.CENTER);
       p.textSize(18);
       p.text(sw.label, sw.x + sw.w / 2, sw.y + sw.h / 2);
+
+      /*if (sw.icon) {
+        const iconSize = 24;
+        p.image(
+          sw.icon,
+          sw.x + sw.w / 2 - iconSize / 2,
+          sw.y + sw.h - iconSize - 12,
+          iconSize,
+          iconSize
+        );*/
+
     }
- 
+  
     // --- Divider line ---
     p.stroke(180);
     p.strokeWeight(1);
@@ -101,7 +124,7 @@ registerSketch('sk2', function (p) {
  
     // --- Elapsed time section ---
     p.noStroke();
-    p.fill(30);
+    p.fill(255);
     p.textAlign(p.LEFT, p.TOP);
     p.textSize(18);
     p.text("Elapsed Time", MARGIN_X, DIVIDER_Y + 15);
@@ -110,11 +133,16 @@ registerSketch('sk2', function (p) {
     for (let i = 0; i < stopwatches.length; i++) {
       const sw = stopwatches[i];
       const timeStr = formatTime(sw.elapsedTime);
-      p.text(
-        `${sw.label}: ${timeStr}`,
-        MARGIN_X,
-        DIVIDER_Y + 50 + i * 26
-      );
+      const prefix = `${sw.label}: `;
+      const lineY = DIVIDER_Y + 50 + i * 26;
+ 
+      // Prefix in default text color
+      p.fill(255);
+      p.text(prefix, MARGIN_X, lineY);
+ 
+      // Time in the stopwatch's color
+      p.fill(sw.color);
+      p.text(timeStr, MARGIN_X + p.textWidth(prefix), lineY);
     }
  
     // Hint text
