@@ -20,11 +20,13 @@ registerSketch('sk2', function (p) {
     p.createCanvas(4 * RECT_W + 3 * GAP + 2 * MARGIN_X, 360);
  
     // Build the 4 stopwatches
-    const labels = ["Drums","Synths","Arrange","Mix"]
+    const labels = ["Drums","Synths","Arrange","Mix"];
+    const colors = ["#5480e4", "#85971e", "#ffa374", "#bf9fbe"];
     for (let i = 0; i < 4; i++) {
       stopwatches.push({
         id: i + 1,
         label: labels[i],
+        color: colors[i],
         running: false,
         startTime: 0,        // millis() reference when started
         elapsedTime: 0,      // accumulated ms
@@ -66,7 +68,7 @@ registerSketch('sk2', function (p) {
     for (const sw of stopwatches) {
       // Fill changes when running
       if (sw.running) {
-        p.fill(120, 200, 130);
+        p.fill(sw.color);
       } else {
         p.fill(220);
       }
