@@ -92,7 +92,7 @@ registerSketch('sk2', function (p) {
       if (sw.running) {
         p.fill(sw.color);
       } else {
-        p.fill(220);
+        p.fill(sw.running ? sw.color : p.color(sw.color + "92"));
       }
       p.stroke(40);
       p.strokeWeight(2);
@@ -100,7 +100,7 @@ registerSketch('sk2', function (p) {
  
       // Number label inside rectangle
       p.noStroke();
-      p.fill(30);
+      p.fill(0);
       p.textAlign(p.CENTER, p.CENTER);
       p.textSize(18);
       p.text(sw.label, sw.x + sw.w / 2, sw.y + sw.h / 2);

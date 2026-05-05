@@ -36,12 +36,12 @@ registerSketch('sk3', function (p) {
     maxSize = canvasSize;
     p.ellipseMode(p.CENTER);
  
-    // Build controls — these are p5 wrappers around DOM elements
+    // Build controls
     label = p.createSpan('Duration (sec, max 1800): ');
     label.style('font-family', 'monospace');
     label.style('color', '#333');
  
-    durationInput = p.createInput('60', 'number');
+    durationInput = p.createInput('600', 'number');
     durationInput.attribute('min', '1');
     durationInput.attribute('max', '1800');
     durationInput.attribute('step', '1');
@@ -72,21 +72,22 @@ registerSketch('sk3', function (p) {
     const cx = p.width / 2;
     const cy = p.height / 2;
  
-    // Reference outline showing the final size
+    // Reference outline showing the starting size
     p.noFill();
     p.stroke(50);
     p.strokeWeight(1);
     p.ellipse(cx, cy, maxSize - 2, maxSize - 2);
  
-    // Constant growth: maxSize / totalCs per centisecond
-    let size = 0;
+    // Constant shrink: lose maxSize / totalCs per centisecond
+    // Idle (no timer set yet) shows the ellipse at full size as a preview
+    let size = maxSize;
     if (totalCs > 0) {
-      const growthPerCs = maxSize / totalCs;
-      size = elapsedCs * growthPerCs;
+      const shrinkPerCs = maxSize / totalCs;
+      size = maxSize - elapsedCs * shrinkPerCs;
       size = p.constrain(size, 0, maxSize);
     }
  
-    // Growing ellipse
+    // Shrinking ellipse
     p.noStroke();
     p.fill(245, 215, 110, 230);
     p.ellipse(cx, cy, size, size);
@@ -99,15 +100,16 @@ registerSketch('sk3', function (p) {
       p.ellipse(cx, cy, size - 2, size - 2);
     }
  
-    // Time readout — top
+    // Time readout — top. Show remaining time so it counts down with the ellipse.
     p.noStroke();
     p.fill(244);
     p.textAlign(p.CENTER, p.TOP);
     p.textSize(13);
     p.textFont('monospace');
-    const elapsedSec = (elapsedCs / 100).toFixed(2);
+    const remainingCs = totalCs > 0 ? p.constrain(totalCs - elapsedCs, 0, totalCs) : 0;
+    const remainingSec = (remainingCs / 100).toFixed(2);
     const totalSec = (totalCs / 100).toFixed(2);
-    p.text(elapsedSec + 's / ' + totalSec + 's', cx, 14);
+    p.text(remainingSec + 's / ' + totalSec + 's', cx, 14);
  
     // Status — bottom
     p.textAlign(p.CENTER, p.BOTTOM);
@@ -120,7 +122,7 @@ registerSketch('sk3', function (p) {
     p.text(status, cx, p.height - 14);
   };
  
-  // ----- Control handlers (closures over p and state) -----
+  // ----- Control handlers -----
   function startTimer() {
     if (isRunning) return;
  
