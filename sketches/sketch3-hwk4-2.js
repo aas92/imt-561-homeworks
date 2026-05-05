@@ -206,7 +206,7 @@ registerSketch('sk3', function (p) {
      p.textAlign(p.CENTER, p.BOTTOM);
      p.textSize(13);
      const remainingCs = totalCs > 0 ? p.constrain(totalCs - elapsedCs, 0, totalCs) : 0;
-     p.text(formatTime(totalCs), p.width / 2, p.height - 28);
+     //p.text(formatTime(totalCs), p.width / 2, p.height - 28);
   
      p.fill(C_MUTED);
      p.textSize(10);
