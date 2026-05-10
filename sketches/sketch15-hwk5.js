@@ -17,9 +17,12 @@ registerSketch('sk15', function (p) {
   const PLOT_WIDTH = PLOT_RIGHT - PLOT_LEFT;
   const PLOT_HEIGHT = PLOT_BOTTOM - PLOT_TOP;
 
-  // --- Data range ---
-  const COST_MIN = 0;
-  const COST_MAX = 16;  // small headroom past lobster tail at $15
+  // --- Data range (log scale requires COST_MIN > 0) ---
+  const COST_MIN = 0.5;
+  const COST_MAX = 16;
+
+  // X-axis tick values (irregular spacing is typical of log scales)
+  const X_AXIS_TICKS = [0.5, 1, 2, 5, 10, 15];
 
   p.setup = function () {
     p.createCanvas(CANVAS_SIZE, CANVAS_SIZE);
@@ -31,12 +34,26 @@ registerSketch('sk15', function (p) {
     drawChartTitle();
     drawAxisTitles();
     drawAxes();
+    drawXAxisTicks();
 
     p.noFill();
     p.stroke(0);
     p.strokeWeight(1);
     p.rect(0, 0, p.width - 1, p.height - 1);
   };
+
+  // --- Coordinate mapping (the workhorse for all data positioning) ---
+  function costToX(cost) {
+    // Logarithmic mapping: equal price ratios = equal pixel distances
+    const logMin = Math.log(COST_MIN);
+    const logMax = Math.log(COST_MAX);
+    const logCost = Math.log(cost);
+    return p.map(logCost, logMin, logMax, PLOT_LEFT, PLOT_RIGHT);
+  }
+
+  function formatDollar(cost) {
+    return cost < 1 ? '$' + cost.toFixed(2) : '$' + cost;
+  }
 
   function drawChartTitle() {
     p.noStroke();
@@ -55,11 +72,9 @@ registerSketch('sk15', function (p) {
     p.fill(60);
     p.textSize(12);
 
-    // X-axis title: cost (now along the horizontal axis)
     p.textAlign(p.CENTER, p.TOP);
-    p.text('Cost per 40g of protein ($)', PLOT_LEFT + PLOT_WIDTH / 2, PLOT_BOTTOM + 60);
+    p.text('Cost per 40g of protein ($, log scale)', PLOT_LEFT + PLOT_WIDTH / 2, PLOT_BOTTOM + 60);
 
-    // Y-axis title: protein source (rotated, along left edge)
     p.push();
     p.translate(25, PLOT_TOP + PLOT_HEIGHT / 2);
     p.rotate(-p.HALF_PI);
@@ -73,11 +88,28 @@ registerSketch('sk15', function (p) {
     p.strokeWeight(1);
     p.noFill();
 
-    // Y-axis (left vertical line)
     p.line(PLOT_LEFT, PLOT_TOP, PLOT_LEFT, PLOT_BOTTOM);
-
-    // X-axis (bottom horizontal line)
     p.line(PLOT_LEFT, PLOT_BOTTOM, PLOT_RIGHT, PLOT_BOTTOM);
+  }
+
+  function drawXAxisTicks() {
+    const tickLength = 5;
+
+    X_AXIS_TICKS.forEach(cost => {
+      const x = costToX(cost);
+
+      // Tick mark
+      p.stroke(100);
+      p.strokeWeight(1);
+      p.line(x, PLOT_BOTTOM, x, PLOT_BOTTOM + tickLength);
+
+      // Dollar label below tick
+      p.noStroke();
+      p.fill(80);
+      p.textSize(11);
+      p.textAlign(p.CENTER, p.TOP);
+      p.text(formatDollar(cost), x, PLOT_BOTTOM + tickLength + 4);
+    });
   }
 
   p.windowResized = function () { p.resizeCanvas(CANVAS_SIZE, CANVAS_SIZE); };
