@@ -24,6 +24,13 @@ registerSketch('sk15', function (p) {
   // X-axis tick values (irregular spacing is typical of log scales)
   const X_AXIS_TICKS = [0.5, 1, 2, 5, 10, 15];
 
+  let proteinData;
+  p.preload = function() {
+    proteinData = p.loadTable(
+      'data/Protein_costper40g_2025.csv','csv','header'
+    );
+  }
+
   p.setup = function () {
     p.createCanvas(CANVAS_SIZE, CANVAS_SIZE);
   };
@@ -35,6 +42,7 @@ registerSketch('sk15', function (p) {
     drawAxisTitles();
     drawAxes();
     drawXAxisTicks();
+    drawDataPoints();
 
     p.noFill();
     p.stroke(0);
@@ -49,6 +57,11 @@ registerSketch('sk15', function (p) {
     const logMax = Math.log(COST_MAX);
     const logCost = Math.log(cost);
     return p.map(logCost, logMin, logMax, PLOT_LEFT, PLOT_RIGHT);
+  }
+  function rowToY(rowIndex, totalRows) {
+    // +0.5 offset centers each row in its allocated vertical slot,
+    // so no item sits directly on the plot edge
+    return p.map(rowIndex + 0.5, 0, totalRows, PLOT_TOP, PLOT_BOTTOM);
   }
 
   function formatDollar(cost) {
@@ -110,6 +123,26 @@ registerSketch('sk15', function (p) {
       p.textAlign(p.CENTER, p.TOP);
       p.text(formatDollar(cost), x, PLOT_BOTTOM + tickLength + 4);
     });
+  
+  }
+  function drawDataPoints() {
+    const rowCount = proteinData.getRowCount();
+  
+    p.noStroke();
+    p.fill(40);
+    p.textSize(11);
+    p.textAlign(p.CENTER, p.CENTER);
+  
+    for (let i = 0; i < rowCount; i++) {
+      const row = proteinData.getRow(i);
+      const cost = row.getNum('Cost_USD');
+      const code = row.get('Code');
+  
+      const x = costToX(cost);
+      const y = rowToY(i, rowCount);
+  
+      p.text(code, x, y);
+    }
   }
 
   p.windowResized = function () { p.resizeCanvas(CANVAS_SIZE, CANVAS_SIZE); };
