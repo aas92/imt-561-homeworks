@@ -31,11 +31,21 @@ registerSketch('sk15', function (p) {
     );
   }
 
+let inflationRate = 0.027;   // 2.7% — close to the recent food-at-home average
+let yearsOut = 10;            // project 10 years into the future
+let rateSlider;
+let yearButtons = [];
+const YEAR_OPTIONS = [0, 5, 10, 20];
+
+
   p.setup = function () {
     p.createCanvas(CANVAS_SIZE, CANVAS_SIZE);
+    setupControls();
   };
 
   p.draw = function () {
+    // Update inflationRate from slider (convert percent to decimal)
+  inflationRate = rateSlider.value() / 100;
     p.background(255);
 
     drawChartTitle();
@@ -67,6 +77,11 @@ registerSketch('sk15', function (p) {
   function formatDollar(cost) {
     return cost < 1 ? '$' + cost.toFixed(2) : '$' + cost;
   }
+
+  // --- Inflation projection helper ---
+function projectedCost(currentCost, rate, years) {
+  return currentCost * Math.pow(1 + rate, years);
+}
 
   function drawChartTitle() {
     p.noStroke();
@@ -128,21 +143,50 @@ registerSketch('sk15', function (p) {
   function drawDataPoints() {
     const rowCount = proteinData.getRowCount();
   
-    p.noStroke();
-    p.fill(40);
-    p.textSize(11);
-    p.textAlign(p.CENTER, p.CENTER);
-  
     for (let i = 0; i < rowCount; i++) {
       const row = proteinData.getRow(i);
       const cost = row.getNum('Cost_USD');
       const code = row.get('Code');
   
-      const x = costToX(cost);
+      const futureCost = projectedCost(cost, inflationRate, yearsOut);
+      const xToday = costToX(cost);
+      const xFuture = costToX(futureCost);
       const y = rowToY(i, rowCount);
   
-      p.text(code, x, y);
+      // Set text properties up front so textWidth() returns the correct value
+      p.textSize(11);
+      p.textAlign(p.CENTER, p.CENTER);
+  
+      // Calculate where the line should stop — short of the abbreviation
+      const lineEndX = xFuture - p.textWidth(code) / 2 - 2;  // 2px breathing room
+  
+      // 1. Trail line — only draw if there's actually room (avoid drawing backwards at low inflation)
+      p.stroke(210);
+      p.strokeWeight(1);
+      if (lineEndX > xToday) {
+        p.line(xToday, y, lineEndX, y);
+      }
+  
+      // 2. Today's position marker
+      p.noStroke();
+      p.fill(160);
+      p.circle(xToday, y, 4);
+  
+      // 3. Projected position (bold abbreviation, drawn last)
+      p.fill(40);
+      p.text(code, xFuture, y);
     }
+  }
+  function setupControls() {
+    rateSlider = p.createSlider(0, 8, 2.7, 0.1);
+    rateSlider.style('width', '200px');
+  
+    // Find the canvas's actual document position and offset from there
+    const canvasRect = p.canvas.getBoundingClientRect();
+    rateSlider.position(
+      canvasRect.left + window.scrollX + MARGIN_LEFT,
+      canvasRect.bottom + window.scrollY + 15
+    );
   }
 
   p.windowResized = function () { p.resizeCanvas(CANVAS_SIZE, CANVAS_SIZE); };
