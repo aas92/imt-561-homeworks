@@ -19,10 +19,10 @@ registerSketch('sk15', function (p) {
 
   // --- Data range (log scale requires COST_MIN > 0) ---
   const COST_MIN = 0.5;
-  const COST_MAX = 16;
+  const COST_MAX = 40;
 
   // X-axis tick values (irregular spacing is typical of log scales)
-  const X_AXIS_TICKS = [0.5, 1, 2, 5, 10, 15];
+  const X_AXIS_TICKS = [0.5, 1, 2, 5, 10, 20, 40];
 
   let proteinData;
   p.preload = function() {
