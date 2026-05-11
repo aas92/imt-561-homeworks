@@ -177,16 +177,100 @@ function projectedCost(currentCost, rate, years) {
       p.text(code, xFuture, y);
     }
   }
+  p.draw = function () {
+    inflationRate = rateSlider.value() / 100;
+  
+    p.background(255);
+  
+    drawChartTitle();
+    drawAxisTitles();
+    drawAxes();
+    drawXAxisTicks();
+    drawDataPoints();
+    drawProjectionReadout();   // <-- new
+  
+    // Frame
+    p.noFill();
+    p.stroke(0);
+    p.strokeWeight(1);
+    p.rect(0, 0, p.width - 1, p.height - 1);
+  };
+
+  function drawProjectionReadout() {
+    const x = PLOT_RIGHT - 10;
+    const y = PLOT_TOP + 10;
+  
+    p.noStroke();
+    p.textAlign(p.RIGHT, p.TOP);
+  
+    // Special case: "Today" button is selected
+    if (yearsOut === 0) {
+      p.fill(40);
+      p.textSize(13);
+      p.text("Today's prices", x, y);
+      return;
+    }
+  
+    // Calculate the projection numbers
+    const multiplier = Math.pow(1 + inflationRate, yearsOut);
+    const ratePercent = (inflationRate * 100).toFixed(1);
+    const example = (1.00 * multiplier).toFixed(2);
+    const percentChange = ((multiplier - 1) * 100).toFixed(0);
+  
+    // Top line: scenario summary (smaller, lighter)
+    p.fill(120);
+    p.textSize(14);
+    p.text('At ' + ratePercent + '% over ' + yearsOut + ' years', x, y);
+  
+    // Bottom line: the concrete example (larger, darker)
+    p.fill(40);
+    p.textSize(15);
+    p.text('$1.00 → $' + example + '  (+' + percentChange + '%)', x, y + 16);
+  }
+
   function setupControls() {
+    // --- Existing slider code ---
     rateSlider = p.createSlider(0, 8, 2.7, 0.1);
     rateSlider.style('width', '200px');
   
-    // Find the canvas's actual document position and offset from there
     const canvasRect = p.canvas.getBoundingClientRect();
     rateSlider.position(
       canvasRect.left + window.scrollX + MARGIN_LEFT,
       canvasRect.bottom + window.scrollY + 15
     );
+  
+    // --- Year buttons ---
+    YEAR_OPTIONS.forEach((year, index) => {
+      const label = year === 0 ? 'Today' : year + ' yr';
+      const btn = p.createButton(label);
+      btn.position(
+        canvasRect.left + window.scrollX + MARGIN_LEFT + 230 + index * 70,
+        canvasRect.bottom + window.scrollY + 13
+      );
+      btn.style('width', '60px');
+      btn.style('cursor', 'pointer');
+      btn.mousePressed(() => {
+        yearsOut = year;
+        updateButtonStates();
+      });
+      yearButtons.push({ element: btn, year: year });
+    });
+  
+    updateButtonStates();  // set initial active styling
+  }
+
+  function updateButtonStates() {
+    yearButtons.forEach(b => {
+      if (b.year === yearsOut) {
+        b.element.style('background', '#333');
+        b.element.style('color', 'white');
+        b.element.style('border', '1px solid #333');
+      } else {
+        b.element.style('background', 'white');
+        b.element.style('color', '#333');
+        b.element.style('border', '1px solid #ccc');
+      }
+    });
   }
 
   p.windowResized = function () { p.resizeCanvas(CANVAS_SIZE, CANVAS_SIZE); };
