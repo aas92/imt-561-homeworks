@@ -157,24 +157,23 @@ function projectedCost(currentCost, rate, years) {
   }
 
   function drawXAxisTicks() {
-    const tickLength = 5;
-
+    const tickExtension = 5;   // how far it extends below the axis
+  
     X_AXIS_TICKS.forEach(cost => {
       const x = costToX(cost);
-
-      // Tick mark
-      p.stroke(100);
+  
+      // Full-height gridline + small extension below the axis
+      p.stroke(225);              // <-- lighter than before so it doesn't compete with data
       p.strokeWeight(1);
-      p.line(x, PLOT_BOTTOM, x, PLOT_BOTTOM + tickLength);
-
-      // Dollar label below tick
+      p.line(x, PLOT_TOP, x, PLOT_BOTTOM + tickExtension);    // <-- was PLOT_BOTTOM to PLOT_BOTTOM + tickLength
+  
+      // Dollar label (unchanged)
       p.noStroke();
       p.fill(80);
       p.textSize(11);
       p.textAlign(p.CENTER, p.TOP);
-      p.text(formatDollar(cost), x, PLOT_BOTTOM + tickLength + 4);
+      p.text(formatDollar(cost), x, PLOT_BOTTOM + tickExtension + 4);
     });
-  
   }
   function drawDataPoints() {
     const rowCount = proteinData.getRowCount();
