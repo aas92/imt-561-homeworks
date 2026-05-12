@@ -34,6 +34,7 @@ registerSketch('sk15', function (p) {
 let inflationRate = 0.027;   // 2.7% — close to the recent food-at-home average
 let yearsOut = 10;            // project 10 years into the future
 let rateSlider;
+let rateLabel;
 let yearButtons = [];
 const YEAR_OPTIONS = [0, 5, 10, 20];
 
@@ -46,6 +47,7 @@ const YEAR_OPTIONS = [0, 5, 10, 20];
   p.draw = function () {
     // Update inflationRate from slider (convert percent to decimal)
   inflationRate = rateSlider.value() / 100;
+  rateLabel.elt.textContent = 'Inflation rate: ' + rateSlider.value().toFixed(1) + '%';
     p.background(255);
 
     drawChartTitle();
@@ -192,6 +194,10 @@ function projectedCost(currentCost, rate, years) {
   }
   p.draw = function () {
     inflationRate = rateSlider.value() / 100;
+    const labelEl = document.getElementById('inflation-rate-label');
+if (labelEl) {
+  labelEl.textContent = 'Inflation rate: ' + rateSlider.value().toFixed(1) + '%';
+}
   
     p.background(255);
   
@@ -242,23 +248,34 @@ function projectedCost(currentCost, rate, years) {
   }
 
   function setupControls() {
-    // --- Existing slider code ---
-    rateSlider = p.createSlider(0, 8, 2.7, 0.1);
-    rateSlider.style('width', '200px');
-  
     const canvasRect = p.canvas.getBoundingClientRect();
-    rateSlider.position(
+  
+    // --- Label + live value display (above the slider) ---
+    rateLabel = p.createDiv('Inflation rate: 2.7%');
+    rateLabel.id('inflation-rate-label');
+    rateLabel.position(
       canvasRect.left + window.scrollX + MARGIN_LEFT,
       canvasRect.bottom + window.scrollY + 15
     );
+    rateLabel.style('font-family', 'sans-serif');
+    rateLabel.style('font-size', '12px');
+    rateLabel.style('color', '#444');
   
-    // --- Year buttons ---
+    // --- Slider (moved down to make room for label) ---
+    rateSlider = p.createSlider(0, 8, 2.7, 0.1);
+    rateSlider.style('width', '200px');
+    rateSlider.position(
+      canvasRect.left + window.scrollX + MARGIN_LEFT,
+      canvasRect.bottom + window.scrollY + 38   // was 15
+    );
+  
+    // --- Year buttons (aligned with new slider position) ---
     YEAR_OPTIONS.forEach((year, index) => {
       const label = year === 0 ? 'Today' : year + ' yr';
       const btn = p.createButton(label);
       btn.position(
         canvasRect.left + window.scrollX + MARGIN_LEFT + 230 + index * 70,
-        canvasRect.bottom + window.scrollY + 13
+        canvasRect.bottom + window.scrollY + 36   // was 13
       );
       btn.style('width', '60px');
       btn.style('cursor', 'pointer');
@@ -269,7 +286,7 @@ function projectedCost(currentCost, rate, years) {
       yearButtons.push({ element: btn, year: year });
     });
   
-    updateButtonStates();  // set initial active styling
+    updateButtonStates();
   }
 
   function updateButtonStates() {
