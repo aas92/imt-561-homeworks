@@ -251,6 +251,7 @@ if (i === hoveredIndex) {
     drawDataPoints();
     drawProjectionReadout();
     drawColorLegend();
+    drawTooltip();
   
     // Frames
     p.noFill();
@@ -333,7 +334,75 @@ if (i === hoveredIndex) {
   // Gray dot — matching the actual today's-price marker (same color/size)
   p.fill(160);
   p.circle(x - swatchSize / 2, dotKeyY, 4); 
+  
   }
+
+  function drawTooltip() {
+    if (hoveredIndex === -1) return;   // nothing to draw if not hovering
+  
+    const row = proteinData.getRow(hoveredIndex);
+    const source = row.get('Source');
+    const cost = row.getNum('Cost_USD');
+  
+    const futureCost = projectedCost(cost, inflationRate, yearsOut);
+    const percentChange = Math.round((futureCost / cost - 1) * 100);
+  
+    // Build the content lines as an array of { text, size, color } objects
+    const lines = [
+      { text: source, size: 12, color: 30 },
+      { text: 'Today (2025): $' + cost.toFixed(2), size: 11, color: 80 }
+    ];
+  
+    if (yearsOut > 0) {
+      lines.push({
+        text: `In ${yearsOut} yr: $${futureCost.toFixed(2)} (+${percentChange}%)`,
+        size: 11,
+        color: 80
+      });
+    }
+  
+    // Measure the widest line so the box fits the content
+    const padding = 10;
+    const lineHeight = 17;
+  
+    let maxWidth = 0;
+    for (const line of lines) {
+      p.textSize(line.size);
+      maxWidth = Math.max(maxWidth, p.textWidth(line.text));
+    }
+  
+    const boxWidth = maxWidth + padding * 2;
+    const boxHeight = lines.length * lineHeight + padding * 2 - 4;
+  
+    // Position the box near (but offset from) the cursor
+    const x = p.mouseX + 14;
+    const y = p.mouseY + 10;
+  
+    // Background fill
+    p.noStroke();
+    p.fill(255);
+    p.rect(x, y, boxWidth, boxHeight, 3);   // last param = corner radius
+  
+    // Subtle border
+    p.noFill();
+    p.stroke(180);
+    p.strokeWeight(0.5);
+    p.rect(x, y, boxWidth, boxHeight, 3);
+  
+    // Draw each line
+    p.noStroke();
+    p.textAlign(p.LEFT, p.TOP);
+  
+    let textY = y + padding;
+    for (const line of lines) {
+      p.textSize(line.size);
+      p.fill(line.color);
+      p.text(line.text, x + padding, textY);
+      textY += lineHeight;
+    }
+  }
+
+  
 
   function setupControls() {
     const canvasRect = p.canvas.getBoundingClientRect();
@@ -390,6 +459,7 @@ if (i === hoveredIndex) {
       }
     });
   }
+  
 
   p.windowResized = function () { p.resizeCanvas(CANVAS_SIZE, CANVAS_SIZE); };
 });
