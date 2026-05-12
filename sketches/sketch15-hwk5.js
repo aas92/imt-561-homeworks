@@ -193,7 +193,7 @@ function projectedCost(currentCost, rate, years) {
       const xFuture = isOffChart ? PLOT_RIGHT - 8 : costToX(futureCost);
       const y = rowToY(i, rowCount);
   
-      p.textSize(10);// <-- slightly smaller for fit
+      p.textSize(12);// <-- slightly smaller for fit
       // 0. Hover highlight — drawn first so everything else sits on top
 if (i === hoveredIndex) {
   p.noStroke();
