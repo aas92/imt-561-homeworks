@@ -150,31 +150,44 @@ function projectedCost(currentCost, rate, years) {
   
       const futureCost = projectedCost(cost, inflationRate, yearsOut);
       const xToday = costToX(cost);
-      const xFuture = costToX(futureCost);
+  
+      // Detect off-chart projection and clamp visual position
+      const isOffChart = futureCost > COST_MAX;
+      const xFuture = isOffChart ? PLOT_RIGHT - 8 : costToX(futureCost);
       const y = rowToY(i, rowCount);
   
-      // Set text properties up front so textWidth() returns the correct value
       p.textSize(11);
       p.textAlign(p.CENTER, p.CENTER);
   
-      // Calculate where the line should stop — short of the abbreviation
-      const lineEndX = xFuture - p.textWidth(code) / 2 - 2;  // 2px breathing room
+      const lineEndX = xFuture - p.textWidth(code) / 2 - 2;
   
-      // 1. Trail line — only draw if there's actually room (avoid drawing backwards at low inflation)
+      // 1. Trail line
       p.stroke(210);
       p.strokeWeight(1);
       if (lineEndX > xToday) {
         p.line(xToday, y, lineEndX, y);
       }
   
-      // 2. Today's position marker
+      // 2. Today's dot
       p.noStroke();
       p.fill(160);
       p.circle(xToday, y, 4);
   
-      // 3. Projected position (bold abbreviation, drawn last)
-      p.fill(40);
-      p.text(code, xFuture, y);
+      // 3. Projected abbreviation — different treatment if off-chart
+      if (isOffChart) {
+        // Muted color (signals "this is past the visible range")
+        p.fill(120);
+        p.text(code, xFuture, y);
+  
+        // Small right-pointing triangle past the text
+        p.noStroke();
+        const arrowX = xFuture + p.textWidth(code) / 2 + 3;
+        p.triangle(arrowX, y - 3, arrowX, y + 3, arrowX + 5, y);
+      } else {
+        // Normal in-chart rendering
+        p.fill(40);
+        p.text(code, xFuture, y);
+      }
     }
   }
   p.draw = function () {
