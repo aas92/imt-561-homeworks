@@ -227,7 +227,8 @@ if (labelEl) {
     drawAxes();
     drawXAxisTicks();
     drawDataPoints();
-    drawProjectionReadout();   // <-- new
+    drawProjectionReadout();   
+    drawColorLegend();
   
     // Frame
     p.noFill();
@@ -266,6 +267,39 @@ if (labelEl) {
     p.fill(40);
     p.textSize(15);
     p.text('$1.00 → $' + example + '  (+' + percentChange + '%)', x, y + 16);
+  }
+
+  function drawColorLegend() {
+    const x = PLOT_RIGHT - 10;
+    const startY = PLOT_TOP + 75;     // below the projection readout
+    const lineHeight = 17;
+    const swatchSize = 10;
+  
+    // Header
+    p.noStroke();
+    p.fill(120);
+    p.textSize(11);
+    p.textAlign(p.RIGHT, p.CENTER);
+    p.text('Source type', x, startY - 18);
+  
+    // Iterate through SOURCE_COLORS in insertion order
+    p.textSize(10);
+    let i = 0;
+    for (const sourceType in SOURCE_COLORS) {
+      const itemY = startY + i * lineHeight;
+  
+      // Label text (right-aligned, sits to the left of the swatch)
+      p.fill(80);
+      p.text(sourceType, x - swatchSize - 6, itemY);
+  
+      // Color swatch (small square at the right edge)
+      p.stroke(180);
+      p.strokeWeight(0.5);
+      p.fill(SOURCE_COLORS[sourceType]);
+      p.rect(x - swatchSize, itemY - swatchSize / 2, swatchSize, swatchSize);
+  
+      i++;
+    }
   }
 
   function setupControls() {
