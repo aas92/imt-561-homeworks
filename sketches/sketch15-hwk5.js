@@ -27,13 +27,14 @@ registerSketch('sk15', function (p) {
   // Okabe-Ito palette: colorblind-friendly categorical colors
   const SOURCE_COLORS = {
   'Legume':     '#009E73',
-  'Dairy':      '#56B4E9',
+  'Dairy':      '#000000',
   'Poultry':    '#E69F00',
   'Fish':       '#0072B2',
   'Supplement': '#CC79A7',
   'Eggs':       '#F0E442',
   'Red Meat':   '#D55E00',
-  'Shellfish':  '#000000'
+  'Shellfish':  '#56B4E9'
+  
 };
 
   let proteinData;
@@ -59,7 +60,7 @@ const YEAR_OPTIONS = [0, 5, 10, 20];
   p.draw = function () {
     // Update inflationRate from slider (convert percent to decimal)
   inflationRate = rateSlider.value() / 100;
-  rateLabel.elt.textContent = 'Inflation rate: ' + rateSlider.value().toFixed(1) + '%';
+  rateLabel.elt.textContent = 'Inflation Rate: ' + rateSlider.value().toFixed(1) + '%';
     p.background(250);
 
     drawChartTitle();
@@ -102,11 +103,11 @@ function projectedCost(currentCost, rate, years) {
     p.fill(40);
     p.textSize(20);
     p.textAlign(p.CENTER, p.TOP);
-    p.text('Inflating the Cost of Protein', CANVAS_SIZE / 2, 25);
+    p.text('Projecting the Inflating Cost of Protein', CANVAS_SIZE / 2, 25);
 
     p.textSize(13);
     p.fill(120);
-    p.text('Adjust the inflation rate and timescale below the chart to project how fast prices could rise', CANVAS_SIZE / 2, 52);
+    p.text('Adjust the inflation rate and timescale below the chart to project how high prices could rise.', CANVAS_SIZE / 2, 52);
   }
 
   function drawAxisTitles() {
@@ -115,13 +116,13 @@ function projectedCost(currentCost, rate, years) {
     p.textSize(18);
 
     p.textAlign(p.CENTER, p.TOP);
-    p.text('Cost per 40g of protein ($, log scale)', PLOT_LEFT + PLOT_WIDTH / 2, PLOT_BOTTOM + 60);
+    p.text('Cost per 40g of protein (USD, log scale)', PLOT_LEFT + PLOT_WIDTH / 2, PLOT_BOTTOM + 60);
 
     p.push();
     p.translate(25, PLOT_TOP + PLOT_HEIGHT / 2);
     p.rotate(-p.HALF_PI);
     p.textAlign(p.CENTER, p.CENTER);
-    p.text('Protein source', 0, 0);
+    p.text('Protein Source', 0, 0);
     p.pop();
   }
 
@@ -160,7 +161,7 @@ function projectedCost(currentCost, rate, years) {
     for (let i = 0; i < rowCount; i++) {
       const row = proteinData.getRow(i);
       const cost = row.getNum('Cost_USD');
-      const code = row.get('Code');
+      const source = row.get('Source');          // <-- was 'Code'
       const sourceType = row.get('Source Type');
   
       const sourceColor = p.color(SOURCE_COLORS[sourceType] || '#404040');
@@ -171,14 +172,13 @@ function projectedCost(currentCost, rate, years) {
       const xFuture = isOffChart ? PLOT_RIGHT - 8 : costToX(futureCost);
       const y = rowToY(i, rowCount);
   
-      p.textSize(11);
-      p.textAlign(p.CENTER, p.CENTER);
+      p.textSize(10);                            // <-- slightly smaller for fit
+      p.textAlign(p.LEFT, p.CENTER);             // <-- text starts at xFuture, extends right
   
-      const lineEndX = xFuture - p.textWidth(code) / 2 - 2;
-  
-      // 1. Trail line
+      // 1. Trail line — stops 4px before text starts
       p.stroke(210);
       p.strokeWeight(1);
+      const lineEndX = xFuture - 4;
       if (lineEndX > xToday) {
         p.line(xToday, y, lineEndX, y);
       }
@@ -188,28 +188,20 @@ function projectedCost(currentCost, rate, years) {
       p.fill(160);
       p.circle(xToday, y, 4);
   
-      // 3. Projected abbreviation
+      // 3. Projected source name (the text itself serves as the colored marker)
       if (isOffChart) {
         sourceColor.setAlpha(120);
       }
   
-      // Apply outline only for low-contrast categories (currently just Eggs/yellow)
       if (sourceType === 'Eggs') {
-        p.stroke(0);
-        p.strokeWeight(1);
+        p.stroke(60);
+        p.strokeWeight(0.5);
       } else {
         p.noStroke();
       }
   
       p.fill(sourceColor);
-      p.text(code, xFuture, y);
-  
-      // Off-chart arrow (no outline on the triangle)
-      if (isOffChart) {
-        p.noStroke();
-        const arrowX = xFuture + p.textWidth(code) / 2 + 3;
-        p.triangle(arrowX, y - 3, arrowX, y + 3, arrowX + 5, y);
-      }
+      p.text(source, xFuture, y);
     }
   }
 
