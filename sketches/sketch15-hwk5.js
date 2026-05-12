@@ -102,17 +102,17 @@ function projectedCost(currentCost, rate, years) {
     p.fill(40);
     p.textSize(20);
     p.textAlign(p.CENTER, p.TOP);
-    p.text('The Cost of Protein', CANVAS_SIZE / 2, 25);
+    p.text('Inflating the Cost of Protein', CANVAS_SIZE / 2, 25);
 
     p.textSize(13);
     p.fill(120);
-    p.text('Price per 40g of protein, by source', CANVAS_SIZE / 2, 52);
+    p.text('Adjust the inflation rate and timescale below the chart to project how fast prices could rise', CANVAS_SIZE / 2, 52);
   }
 
   function drawAxisTitles() {
     p.noStroke();
     p.fill(60);
-    p.textSize(12);
+    p.textSize(18);
 
     p.textAlign(p.CENTER, p.TOP);
     p.text('Cost per 40g of protein ($, log scale)', PLOT_LEFT + PLOT_WIDTH / 2, PLOT_BOTTOM + 60);
@@ -271,19 +271,19 @@ if (labelEl) {
 
   function drawColorLegend() {
     const x = PLOT_RIGHT - 10;
-    const startY = PLOT_TOP + 75;     // below the projection readout
+    const startY = PLOT_TOP + 100;     // below the projection readout
     const lineHeight = 17;
     const swatchSize = 10;
   
     // Header
     p.noStroke();
     p.fill(120);
-    p.textSize(11);
+    p.textSize(12);
     p.textAlign(p.RIGHT, p.CENTER);
     p.text('Source type', x, startY - 18);
   
     // Iterate through SOURCE_COLORS in insertion order
-    p.textSize(10);
+    p.textSize(14);
     let i = 0;
     for (const sourceType in SOURCE_COLORS) {
       const itemY = startY + i * lineHeight;
@@ -300,19 +300,30 @@ if (labelEl) {
   
       i++;
     }
+
+   // --- Today's price key (gray dot) ---
+  const dotKeyY = startY + i * lineHeight + 8;   // extra gap after last category
+
+  // Label
+  p.fill(80);
+  p.text('Price in 2025', x - swatchSize - 6, dotKeyY);
+
+  // Gray dot — matching the actual today's-price marker (same color/size)
+  p.fill(160);
+  p.circle(x - swatchSize / 2, dotKeyY, 4); 
   }
 
   function setupControls() {
     const canvasRect = p.canvas.getBoundingClientRect();
   
     // --- Label + live value display (above the slider) ---
-    rateLabel = p.createDiv('Inflation rate: 2.7%');
+    rateLabel = p.createDiv('Inflation Rate: 2.7%');
     rateLabel.id('inflation-rate-label');
     rateLabel.position(
       canvasRect.left + window.scrollX + MARGIN_LEFT,
       canvasRect.bottom + window.scrollY + 15
     );
-    rateLabel.style('font-family', 'sans-serif');
+    rateLabel.style('font-family', 'monospace');
     rateLabel.style('font-size', '12px');
     rateLabel.style('color', '#444');
   
