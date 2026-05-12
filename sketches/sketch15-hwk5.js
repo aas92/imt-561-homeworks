@@ -241,7 +241,7 @@ if (i === hoveredIndex) {
   
     hoveredIndex = getHoveredRow();   // <-- ADD this line for hover detection
   
-    p.background(255);                 // <-- CHANGE from 80 to 240 (light gray)
+    p.background(245);                 // <-- CHANGE from 80 to 240 (light gray)
   
     drawChartTitle();
     drawAxisTitles();
