@@ -50,6 +50,7 @@ let rateSlider;
 let rateLabel;
 let yearButtons = [];
 const YEAR_OPTIONS = [0, 5, 10, 20];
+let hoveredIndex = -1;   // index of currently hovered row; -1 means no hover
 
 
   p.setup = function () {
@@ -57,11 +58,15 @@ const YEAR_OPTIONS = [0, 5, 10, 20];
     setupControls();
   };
 
-  p.draw = function () {
+  /*p.draw = function () {
+  
     // Update inflationRate from slider (convert percent to decimal)
   inflationRate = rateSlider.value() / 100;
   rateLabel.elt.textContent = 'Inflation Rate: ' + rateSlider.value().toFixed(1) + '%';
-    p.background(250);
+  
+  hoveredIndex = getHoveredRow(); 
+
+  p.background(220);
 
     drawChartTitle();
     drawAxisTitles();
@@ -73,7 +78,7 @@ const YEAR_OPTIONS = [0, 5, 10, 20];
     p.stroke(0);
     p.strokeWeight(1);
     p.rect(0, 0, p.width - 1, p.height - 1);
-  };
+  };*/
 
   // --- Coordinate mapping (the workhorse for all data positioning) ---
   function costToX(cost) {
@@ -87,6 +92,22 @@ const YEAR_OPTIONS = [0, 5, 10, 20];
     // +0.5 offset centers each row in its allocated vertical slot,
     // so no item sits directly on the plot edge
     return p.map(rowIndex + 0.5, 0, totalRows, PLOT_TOP, PLOT_BOTTOM);
+  }
+
+  function getHoveredRow() {
+    if (!proteinData) return -1;
+  
+    // Mouse must be within the plot area to count as hovering
+    if (p.mouseX < PLOT_LEFT || p.mouseX > PLOT_RIGHT) return -1;
+    if (p.mouseY < PLOT_TOP || p.mouseY > PLOT_BOTTOM) return -1;
+  
+    // Inverse of rowToY: figure out which row the cursor is in
+    const rowCount = proteinData.getRowCount();
+    const relativeY = p.mouseY - PLOT_TOP;
+    const rowIndex = Math.floor((relativeY / (PLOT_BOTTOM - PLOT_TOP)) * rowCount);
+  
+    if (rowIndex < 0 || rowIndex >= rowCount) return -1;
+    return rowIndex;
   }
 
   function formatDollar(cost) {
@@ -106,7 +127,7 @@ function projectedCost(currentCost, rate, years) {
     p.text('Projecting the Inflating Cost of Protein', CANVAS_SIZE / 2, 25);
 
     p.textSize(13);
-    p.fill(120);
+    p.fill(40);
     p.text('Adjust the inflation rate and timescale below the chart to project how high prices could rise.', CANVAS_SIZE / 2, 52);
   }
 
@@ -157,6 +178,7 @@ function projectedCost(currentCost, rate, years) {
   }
   function drawDataPoints() {
     const rowCount = proteinData.getRowCount();
+    const rowHeight = (PLOT_BOTTOM - PLOT_TOP) / rowCount;   // hoist out of loop
   
     for (let i = 0; i < rowCount; i++) {
       const row = proteinData.getRow(i);
@@ -172,7 +194,13 @@ function projectedCost(currentCost, rate, years) {
       const xFuture = isOffChart ? PLOT_RIGHT - 8 : costToX(futureCost);
       const y = rowToY(i, rowCount);
   
-      p.textSize(10);                            // <-- slightly smaller for fit
+      p.textSize(10);// <-- slightly smaller for fit
+      // 0. Hover highlight — drawn first so everything else sits on top
+if (i === hoveredIndex) {
+  p.noStroke();
+  p.fill(220);
+  p.rect(PLOT_LEFT, y - rowHeight / 2, CANVAS_SIZE - PLOT_LEFT, rowHeight);
+}
       p.textAlign(p.LEFT, p.CENTER);             // <-- text starts at xFuture, extends right
   
       // 1. Trail line — stops 4px before text starts
@@ -185,7 +213,7 @@ function projectedCost(currentCost, rate, years) {
   
       // 2. Today's dot
       p.noStroke();
-      p.fill(160);
+      p.fill(100);
       p.circle(xToday, y, 4);
   
       // 3. Projected source name (the text itself serves as the colored marker)
@@ -208,21 +236,23 @@ function projectedCost(currentCost, rate, years) {
   p.draw = function () {
     inflationRate = rateSlider.value() / 100;
     const labelEl = document.getElementById('inflation-rate-label');
-if (labelEl) {
-  labelEl.textContent = 'Inflation rate: ' + rateSlider.value().toFixed(1) + '%';
-}
+    if (labelEl) {
+      labelEl.textContent = 'Inflation rate: ' + rateSlider.value().toFixed(1) + '%';
+    }
   
-    p.background(255);
+    hoveredIndex = getHoveredRow();   // <-- ADD this line for hover detection
+  
+    p.background(255);                 // <-- CHANGE from 80 to 240 (light gray)
   
     drawChartTitle();
     drawAxisTitles();
     drawAxes();
     drawXAxisTicks();
     drawDataPoints();
-    drawProjectionReadout();   
+    drawProjectionReadout();
     drawColorLegend();
   
-    // Frame
+    // Frames
     p.noFill();
     p.stroke(0);
     p.strokeWeight(1);
