@@ -375,8 +375,23 @@ if (i === hoveredIndex) {
     const boxHeight = lines.length * lineHeight + padding * 2 - 4;
   
     // Position the box near (but offset from) the cursor
-    const x = p.mouseX + 14;
-    const y = p.mouseY + 10;
+    // Position the box near (but offset from) the cursor — default: right and below
+let x = p.mouseX + 14;
+let y = p.mouseY + 10;
+
+// Flip to LEFT of cursor if extending right would clip the canvas edge
+if (x + boxWidth > p.width - 4) {
+  x = p.mouseX - 14 - boxWidth;
+}
+
+// Flip to ABOVE cursor if extending down would clip the canvas edge
+if (y + boxHeight > p.height - 4) {
+  y = p.mouseY - 10 - boxHeight;
+}
+
+// Safety clamp — in case both flips still aren't enough (canvas smaller than tooltip)
+x = Math.max(4, x);
+y = Math.max(4, y);
   
     // Background fill
     p.noStroke();
