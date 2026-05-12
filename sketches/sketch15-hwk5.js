@@ -24,6 +24,18 @@ registerSketch('sk15', function (p) {
   // X-axis tick values (irregular spacing is typical of log scales)
   const X_AXIS_TICKS = [0.5, 1, 2, 5, 10, 20, 40];
 
+  // Okabe-Ito palette: colorblind-friendly categorical colors
+  const SOURCE_COLORS = {
+  'Legume':     '#009E73',
+  'Dairy':      '#56B4E9',
+  'Poultry':    '#E69F00',
+  'Fish':       '#0072B2',
+  'Supplement': '#CC79A7',
+  'Eggs':       '#F0E442',
+  'Red Meat':   '#D55E00',
+  'Shellfish':  '#000000'
+};
+
   let proteinData;
   p.preload = function() {
     proteinData = p.loadTable(
@@ -48,7 +60,7 @@ const YEAR_OPTIONS = [0, 5, 10, 20];
     // Update inflationRate from slider (convert percent to decimal)
   inflationRate = rateSlider.value() / 100;
   rateLabel.elt.textContent = 'Inflation rate: ' + rateSlider.value().toFixed(1) + '%';
-    p.background(255);
+    p.background(250);
 
     drawChartTitle();
     drawAxisTitles();
@@ -149,11 +161,12 @@ function projectedCost(currentCost, rate, years) {
       const row = proteinData.getRow(i);
       const cost = row.getNum('Cost_USD');
       const code = row.get('Code');
+      const sourceType = row.get('Source Type');
+  
+      const sourceColor = p.color(SOURCE_COLORS[sourceType] || '#404040');
   
       const futureCost = projectedCost(cost, inflationRate, yearsOut);
       const xToday = costToX(cost);
-  
-      // Detect off-chart projection and clamp visual position
       const isOffChart = futureCost > COST_MAX;
       const xFuture = isOffChart ? PLOT_RIGHT - 8 : costToX(futureCost);
       const y = rowToY(i, rowCount);
@@ -175,23 +188,31 @@ function projectedCost(currentCost, rate, years) {
       p.fill(160);
       p.circle(xToday, y, 4);
   
-      // 3. Projected abbreviation — different treatment if off-chart
+      // 3. Projected abbreviation
       if (isOffChart) {
-        // Muted color (signals "this is past the visible range")
-        p.fill(120);
-        p.text(code, xFuture, y);
+        sourceColor.setAlpha(120);
+      }
   
-        // Small right-pointing triangle past the text
+      // Apply outline only for low-contrast categories (currently just Eggs/yellow)
+      if (sourceType === 'Eggs') {
+        p.stroke(0);
+        p.strokeWeight(1);
+      } else {
+        p.noStroke();
+      }
+  
+      p.fill(sourceColor);
+      p.text(code, xFuture, y);
+  
+      // Off-chart arrow (no outline on the triangle)
+      if (isOffChart) {
         p.noStroke();
         const arrowX = xFuture + p.textWidth(code) / 2 + 3;
         p.triangle(arrowX, y - 3, arrowX, y + 3, arrowX + 5, y);
-      } else {
-        // Normal in-chart rendering
-        p.fill(40);
-        p.text(code, xFuture, y);
       }
     }
   }
+
   p.draw = function () {
     inflationRate = rateSlider.value() / 100;
     const labelEl = document.getElementById('inflation-rate-label');
